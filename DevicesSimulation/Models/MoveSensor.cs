@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace DevicesSimulation.Models
 {
-    public class Heater : Device
+    public class MoveSensor : Device
     {
-        public double Temperature { get; set; }
+        public bool IsMove { get; set; }
+        public bool IsSecureMod { get; set; }
     }
 }

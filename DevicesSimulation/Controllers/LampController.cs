@@ -95,10 +95,14 @@ namespace DevicesSimulation.Controllers
 
             if (!db.Lamps.Any(x => x.Name == lamp.Name))
                 return NotFound();
- 
-            db.Update(lamp);
+
+            var resultLamp = db.Lamps.FirstOrDefault(x => x.Name == lamp.Name);
+            resultLamp.Brightness = lamp.Brightness;
+            resultLamp.Power = lamp.Power;
+
+            db.Update(resultLamp);
             db.SaveChanges();
-            return Ok(lamp);
+            return Ok(resultLamp);
         }
     }
 }

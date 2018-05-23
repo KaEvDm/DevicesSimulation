@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace DevicesSimulation.Models
 {
-    public class Heater : Device
+    public class TemperatureSensor : Device
     {
-        public double Temperature { get; set; }
+        public double TemperatureSensorReadings { get; set; }
     }
 }

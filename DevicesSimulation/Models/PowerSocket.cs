@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace DevicesSimulation.Models
 {
-    public class Heater : Device
+    public class PowerSocket : Device
     {
-        public double Temperature { get; set; }
+        bool IsOn { get; set; }
     }
 }

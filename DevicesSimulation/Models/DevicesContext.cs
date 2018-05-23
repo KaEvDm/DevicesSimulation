@@ -12,6 +12,9 @@ namespace DevicesSimulation.Models
         public DbSet<AirConditioner> AirConditioners { get; set; }
         public DbSet<DoorLock> DoorLocks { get; set; }
         public DbSet<Heater> Heaters { get; set; }
+        public DbSet<MoveSensor> MoveSensors { get; set; }
+        public DbSet<PowerSocket> PowerSockets { get; set; }
+        public DbSet<TemperatureSensor> TemperatureSensors { get; set; }
 
 
         public DevicesContext(DbContextOptions<DevicesContext> options)

@@ -96,9 +96,13 @@ namespace DevicesSimulation.Controllers
             if (!db.DoorLocks.Any(x => x.Name == doorLock.Name))
                 return NotFound();
 
-            db.Update(doorLock);
+            var resultDoorLock = db.DoorLocks.FirstOrDefault(x => x.Name == doorLock.Name);
+            resultDoorLock.IsOpen = doorLock.IsOpen;
+            resultDoorLock.Power = doorLock.Power;
+
+            db.Update(resultDoorLock);
             db.SaveChanges();
-            return Ok(doorLock);
+            return Ok(resultDoorLock);
         }
     }
 }

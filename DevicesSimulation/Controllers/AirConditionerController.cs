@@ -94,9 +94,14 @@ namespace DevicesSimulation.Controllers
             if (!db.AirConditioners.Any(x => x.Name == airConditioner.Name))
                 return NotFound();
 
-            db.Update(airConditioner);
+            var resultAirConditioner = db.AirConditioners.FirstOrDefault(x => x.Name == airConditioner.Name);
+            resultAirConditioner.Power = airConditioner.Power;
+            resultAirConditioner.Mode = airConditioner.Mode;
+            resultAirConditioner.Temperature = airConditioner.Temperature;
+
+            db.Update(resultAirConditioner);
             db.SaveChanges();
-            return Ok(airConditioner);
+            return Ok(resultAirConditioner);
         }
     }
 }

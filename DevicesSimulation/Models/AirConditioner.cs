@@ -8,8 +8,8 @@ namespace DevicesSimulation.Models
     public class AirConditioner : Device
     {
         public int Mode { get; set; }
-        public int Temperature { get; set; }
-        public int TemperatureSensorReadings { get; set; }
+        public double Temperature { get; set; }
+        public double TemperatureSensorReadings { get; set; }
         public bool IsWater { get; set; }
     }
 }
