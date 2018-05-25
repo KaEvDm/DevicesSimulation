@@ -11,9 +11,10 @@ using System;
 namespace DevicesSimulation.Migrations
 {
     [DbContext(typeof(DevicesContext))]
-    partial class DevicesContextModelSnapshot : ModelSnapshot
+    [Migration("20180523195707_new_devices1")]
+    partial class new_devices1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

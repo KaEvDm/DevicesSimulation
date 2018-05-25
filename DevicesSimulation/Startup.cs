@@ -30,8 +30,8 @@ namespace DevicesSimulation
             services.AddMvc();
             string connectionString = "Host=localhost;Port=5432;Database=DevSim;Username=postgres;Password=123";
             services.AddDbContext<DevicesContext>(options => options.UseNpgsql(connectionString));
-            services.AddSingleton<ITaskInvoke, MoveChange>();
             services.AddSingleton<ITaskInvoke, TemperatureChange>();
+            services.AddSingleton<ITaskInvoke, MoveChange>();
             services.AddSingleton<IHostedService, TaskRunner>();
             
 

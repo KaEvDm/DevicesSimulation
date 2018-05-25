@@ -35,25 +35,25 @@ namespace DevicesSimulation.TasksRunAsync
             //Запрос погоды
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
                 "http://api.openweathermap.org/data/2.5/weather?id=1508291&APPID=ce2124ddd35bd7afd4eff844857c517d");
-            WebResponse response = request.GetResponse();
-            using (Stream stream = response.GetResponseStream())
-            {
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    var weather = Weather.FromJson(reader.ReadToEnd());
+            request.Method = "GET";
+            request.ContentType = "application/json";
 
-                    return weather.Main.Temp - AbsoluteZeroKelvin;
-                }
+            WebResponse response = request.GetResponse();
+            using (var streamReader = new StreamReader(response.GetResponseStream()))
+            {
+                string json = streamReader.ReadToEnd();
+                var weather = Weather.FromJson(json);
+
+                return weather.Main.Temp - AbsoluteZeroKelvin;
             }
         }
 
         public Task Run()
         {
+            
+            double NowTemperatureOutside = GetTemperatureOutside();
+
             double NowTemperatureInside = 0;
-            double NowTemperatureOutside = 0;
-
-            NowTemperatureOutside = GetTemperatureOutside();
-
             //Данные с устройств
             using (var scope = _provider.CreateScope())
             {
@@ -83,7 +83,7 @@ namespace DevicesSimulation.TasksRunAsync
 
                 //ФОРМУЛА
                 double deltaTemperatureOutside = Math.Abs(LastTemperatureOutside) - Math.Abs(NowTemperatureOutside);
-                double deltaTemperatureInside = Math.Abs(NowTemperatureInside) - Math.Abs(NowTemperatureInside);
+                double deltaTemperatureInside = Math.Abs(NowTemperatureInside) - Math.Abs(LastTemperatureInside);
                 double NewTemperatureInside = LastTemperatureInside + deltaTemperatureOutside / 2 + deltaTemperatureInside;
 
                 //Обновляем последнюю температуру

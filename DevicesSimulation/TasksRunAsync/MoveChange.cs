@@ -11,7 +11,7 @@ namespace DevicesSimulation.TasksRunAsync
     {
         public IServiceProvider _provider;
 
-        public double PeriodMS => 1000 * 60 * 5; //5 мин;
+        public double PeriodMS => 1000 * 30; //30 сек;
 
         public MoveChange(IServiceProvider provider)
         {
@@ -46,7 +46,7 @@ namespace DevicesSimulation.TasksRunAsync
 
         public Task Invoke()
         {
-            throw new NotImplementedException();
+            return Run();
         }
     }
 }

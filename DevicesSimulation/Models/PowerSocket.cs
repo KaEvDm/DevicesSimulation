@@ -7,6 +7,6 @@ namespace DevicesSimulation.Models
 {
     public class PowerSocket : Device
     {
-        bool IsOn { get; set; }
+        public bool IsOn { get; set; }
     }
 }
