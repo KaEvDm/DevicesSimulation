@@ -27,20 +27,23 @@ namespace DevicesSimulation.TasksRunAsync
 
                 var MoveSensorsIsOn = context.MoveSensors.Where(z => z.IsConect == true).ToList();
 
-                foreach (var item in MoveSensorsIsOn)
+                //если есть подключённые датчики
+                if(MoveSensorsIsOn != null)
                 {
-                    Random rand = new Random();
-                    int randNumber = rand.Next(100);
-                    if (randNumber <= 50)
+                    foreach (var item in MoveSensorsIsOn)
                     {
-                        if (item.IsMove) item.IsMove = false;
-                        else item.IsMove = true;
-                        context.Update(item);
+                        Random rand = new Random();
+                        int randNumber = rand.Next(100);
+                        if (randNumber <= 50)
+                        {
+                            if (item.IsMove) item.IsMove = false;
+                            else item.IsMove = true;
+                            context.Update(item);
+                        }
                     }
+                    context.SaveChanges();
                 }
-                context.SaveChanges();
             }
-
             return null;
         }
 

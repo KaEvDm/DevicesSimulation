@@ -12,46 +12,24 @@ namespace DevicesSimulation.TasksRunAsync
 {
     public class TemperatureChange : ITaskInvoke
     {
-
         public IServiceProvider _provider;
 
-        public double PeriodMS => 1000 * 60 * 30; //30 мин
+        public double PeriodMS => 1000 * 10; //10 сек
 
         public double LastTemperatureInside { get; set; }
         public double LastTemperatureOutside { get; set; }
-
-        private const double AbsoluteZeroKelvin = 273.15;
 
         public TemperatureChange(IServiceProvider provider)
         {
             _provider = provider;
 
-            LastTemperatureOutside = GetTemperatureOutside();
+            LastTemperatureOutside = WeatherOutside.TemperatureOutside;
             LastTemperatureInside = 20;
-        }
-
-        public double GetTemperatureOutside()
-        {
-            //Запрос погоды
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
-                "http://api.openweathermap.org/data/2.5/weather?id=1508291&APPID=ce2124ddd35bd7afd4eff844857c517d");
-            request.Method = "GET";
-            request.ContentType = "application/json";
-
-            WebResponse response = request.GetResponse();
-            using (var streamReader = new StreamReader(response.GetResponseStream()))
-            {
-                string json = streamReader.ReadToEnd();
-                var weather = Weather.FromJson(json);
-
-                return weather.Main.Temp - AbsoluteZeroKelvin;
-            }
         }
 
         public Task Run()
         {
-            
-            double NowTemperatureOutside = GetTemperatureOutside();
+            double NowTemperatureOutside = WeatherOutside.TemperatureOutside;
 
             double NowTemperatureInside = 0;
             //Данные с устройств
@@ -62,46 +40,61 @@ namespace DevicesSimulation.TasksRunAsync
                 var AirConditionersIsOn = context.AirConditioners.Where(z => z.IsConect == true).ToList();
                 var HeatersIsOn = context.Heaters.Where(z => z.IsConect == true).ToList();
                 var TemperatureSensorsIsOn = context.TemperatureSensors.Where(z => z.IsConect == true).ToList();
+                
+                //если есть устройства которые отображают температуру
+                if(AirConditionersIsOn != null || TemperatureSensorsIsOn != null)
+                {
+                    //если есть устройства которые меняют температуру
+                    if (AirConditionersIsOn != null || HeatersIsOn != null)
+                    {
+                        int count = 0;
+                        foreach (var item in AirConditionersIsOn)
+                        {
+                            NowTemperatureInside += item.Temperature;
+                            LastTemperatureInside = item.TemperatureSensorReadings;
+                            count++;
+                        }
+                        foreach (var item in HeatersIsOn)
+                        {
+                            NowTemperatureInside += item.Temperature;
+                            count++;
+                        }
+                        foreach (var item in TemperatureSensorsIsOn)
+                        {
+                            LastTemperatureInside = item.TemperatureSensorReadings;
+                        }
+                        NowTemperatureInside /= count;
 
-                int count = 0;
-                foreach (var item in AirConditionersIsOn)
-                {
-                    NowTemperatureInside += item.Temperature;
-                    LastTemperatureInside = item.TemperatureSensorReadings;
-                    count++;
-                }
-                foreach (var item in HeatersIsOn)
-                {
-                    NowTemperatureInside += item.Temperature;
-                    count++;
-                }
-                foreach (var item in TemperatureSensorsIsOn)
-                {
-                    LastTemperatureInside = item.TemperatureSensorReadings;
-                }
-                NowTemperatureInside /= count;
+                        //ФОРМУЛА
+                        double deltaTemperatureOutside = Math.Abs(LastTemperatureOutside) - Math.Abs(NowTemperatureOutside);
+                        double deltaTemperatureInside = Math.Abs(NowTemperatureInside) - Math.Abs(LastTemperatureInside);
+                        var rnd = new Random();
+                        double NewTemperatureInside = Math.Round(
+                            LastTemperatureInside + 
+                            (deltaTemperatureOutside + deltaTemperatureInside + rnd.NextDouble() * rnd.Next(-1,1) * 2)/5, 
+                            2, MidpointRounding.AwayFromZero);
 
-                //ФОРМУЛА
-                double deltaTemperatureOutside = Math.Abs(LastTemperatureOutside) - Math.Abs(NowTemperatureOutside);
-                double deltaTemperatureInside = Math.Abs(NowTemperatureInside) - Math.Abs(LastTemperatureInside);
-                double NewTemperatureInside = LastTemperatureInside + deltaTemperatureOutside / 2 + deltaTemperatureInside;
+                        if (NewTemperatureInside > 100 || NewTemperatureInside < -100)
+                            NewTemperatureInside = NowTemperatureInside;
 
-                //Обновляем последнюю температуру
-                LastTemperatureOutside = NowTemperatureOutside;
-
-                //Меняем покаания датчиков
-                foreach (var item in AirConditionersIsOn)
-                {
-                    item.TemperatureSensorReadings = NewTemperatureInside;
-                    context.Update(item);
+                        //Меняем покаания датчиков
+                        foreach (var item in AirConditionersIsOn)
+                        {
+                            item.TemperatureSensorReadings = NewTemperatureInside;
+                            context.Update(item);
+                        }
+                        foreach (var item in TemperatureSensorsIsOn)
+                        {
+                            item.TemperatureSensorReadings = NewTemperatureInside;
+                            context.Update(item);
+                        }
+                        context.SaveChanges();
+                    }
                 }
-                foreach (var item in TemperatureSensorsIsOn)
-                {
-                    item.TemperatureSensorReadings = NewTemperatureInside;
-                    context.Update(item);
-                }
-                context.SaveChanges();
             }
+
+            //Обновляем последнюю температуру
+            LastTemperatureOutside = NowTemperatureOutside;
 
             return null;
         }

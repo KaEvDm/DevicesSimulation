@@ -125,13 +125,13 @@ namespace DevicesSimulation.TasksRunAsync
 
     public partial class Weather
     {
-        public static Weather FromJson(string json) => 
+        public static Weather FromJson(string json) =>
             JsonConvert.DeserializeObject<Weather>(json, DevicesSimulation.TasksRunAsync.Converter.Settings);
     }
 
     public static class Serialize
     {
-        public static string ToJson(this Weather self) => 
+        public static string ToJson(this Weather self) =>
             JsonConvert.SerializeObject(self, DevicesSimulation.TasksRunAsync.Converter.Settings);
     }
 
